@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_COMPOSE_PATH = "${WORKSPACE}/docker-compose.yml"
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -12,27 +8,22 @@ pipeline {
             }
         }
 
-        stage('Install Docker') {
+        stage('Build Docker Image') {
             steps {
-                sh '''
-                if ! command -v docker >/dev/null; then
-                    echo "Installing Docker..."
-                    sudo apt-get update
-                    sudo apt-get install -y docker.io
-                    sudo systemctl enable docker
-                    sudo systemctl start docker
-                fi
-                '''
+                script {
+                    dockerImage = docker.build("mohitredis:latest")
+                }
             }
         }
 
-        stage('Deploy Redis and Tools') {
+        stage('Run Redis Container') {
             steps {
-                sh '''
-                echo "Launching Redis Cluster, RedisInsight & Exporter..."
-                sudo docker compose -f ${DOCKER_COMPOSE_PATH} up -d --remove-orphans
-                '''
+                script {
+                    sh "docker rm -f redis-server || true"
+                    sh "docker run -d --name redis-server -p 6379:6379 mohitredis:latest"
+                }
             }
         }
     }
 }
+

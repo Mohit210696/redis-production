@@ -1,0 +1,17 @@
+#- name: Install Redis
+# apt:
+#   name: redis-server
+#   state: present
+#
+#- name: Ensure Redis is running
+# service:
+#   name: redis-server
+#   state: started
+#   enabled: yes
+#------------------------------------------------------------------------------------------------------------------------
+- name: Verify Redis is responding
+  shell: redis-cli ping
+  register: redis_ping
+  failed_when: redis_ping.stdout != "PONG"
+  changed_when: false
+

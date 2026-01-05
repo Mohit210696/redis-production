@@ -2,55 +2,22 @@
 pipeline {
     agent any
 
-    environment {
-        ANSIBLE_HOST_KEY_CHECKING = 'False'
-    }
-
     stages {
-
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Terraform Init & Validate') {
+        stage('SSH to Bastion (Test)') {
             steps {
-                sh '''
-                  cd terraform
-                  terraform init -input=false
-                  terraform validate
-                '''
+                sshagent(credentials: ['bastion-ssh-key']) {
+                    sh '''
+                      ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 hostname
+                      ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 whoami
+                    '''
+                }
             }
-        }
-
-        stage('Terraform Plan (Read Only)') {
-            steps {
-                sh '''
-                  cd terraform
-                  terraform plan -input=false
-                '''
-            }
-        }
-
-        stage('Ansible Ping') {
-            steps {
-                sh '''
-                  cd ansible
-                  ansible all -m ping
-                '''
-            }
-        }
-
-        stage('Ansible Apply') {
-            steps {
-                sh '''
-                  cd ansible
-                  ansible-playbook playbooks/site.yml
-                '''
-            }
-        }
-    }
+       }
+   }
 }
-
-

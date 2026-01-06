@@ -69,7 +69,7 @@ stage('Terraform Init & Plan') {
                 set -e
                 cd ~/redis-production/terraform
                 terraform init -input=false
-                terraform plan -input=false
+                terraform plan -input=false -var="key_name=redis.0788"
               EOF
             '''
         }

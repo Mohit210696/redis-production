@@ -31,6 +31,7 @@ pipeline {
                     sh '''
                         ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 << 'EOF'
                           set -e
+                          export TF_VAR_key_name="redis.0788"
                           cd ~/redis-production/terraform
                           terraform init -input=false
                           terraform plan -input=false

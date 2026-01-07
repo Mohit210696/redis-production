@@ -1,9 +1,10 @@
-
 pipeline {
     agent any
 
     environment {
         TF_VAR_key_name = "redis.0788"
+        TF_IN_AUTOMATION = "true"
+        TF_INPUT = "0"
     }
 
     stages {
@@ -28,16 +29,17 @@ pipeline {
         stage('Terraform Init & Plan') {
             steps {
                 sshagent(credentials: ['bastion-ssh-key']) {
-                   sh '''
-        ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 \
-        "export TF_VAR_key_name=redis.0788 && \
-         export TF_IN_AUTOMATION=true && \
-         export TF_INPUT=0 && \
-         cd ~/redis-production/terraform && \
-         terraform init -input=false && \
-         terraform plan -input=false"
+                    sh '''
+ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 \
+"set -e && \
+"cd ~/redis-production/terraform && \
+ terraform init -input=false && \
+ terraform plan -input=false"
                     '''
+                }
+            }
         }
+
     }
 }
 

@@ -29,15 +29,15 @@ pipeline {
             steps {
                 sshagent(credentials: ['bastion-ssh-key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 << 'EOF'
-                          set -e
-                          export TF_VAR_key_name="redis.0788"
-                          export TF_IN_AUTOMATION=true
-                          export TF_INPUT=0
-                          cd ~/redis-production/terraform
-                          terraform init -input=false
-                          terraform plan -input=false
-                        EOF
+        ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 << 'EOF'
+        set -e
+        export TF_VAR_key_name="redis.0788"
+        export TF_IN_AUTOMATION=true
+        export TF_INPUT=0
+        cd ~/redis-production/terraform
+        terraform init -input=false
+        terraform plan -input=false
+        EOF
                     '''
                 }
             }

@@ -30,11 +30,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['bastion-ssh-key']) {
                     sh '''
-ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44 \
-"set -e && \
-"cd ~/redis-production/terraform && \
- terraform init -input=false && \
- terraform plan -input=false"
+                        ssh -o StrictHostKeyChecking=no ubuntu@172.31.15.44  "cd ~/redis-production/terraform && terraform init -input=false && terraform plan -input=false"
                     '''
                 }
             }

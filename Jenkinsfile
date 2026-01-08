@@ -39,7 +39,8 @@ pipeline {
                     sh '''
                       ssh ubuntu@172.31.15.44 "
                         cd ~/redis-production/terraform &&
-                        terraform plan
+                        terraform workspace select ${env.BRANCH_NAME} || terraform workspace new ${env.BRANCH_NAME} &&
+                        terraform plan -var-file=${env.BRANCH_NAME}.tfvars
                       "
                     '''
                 }
@@ -61,7 +62,7 @@ pipeline {
                     sh '''
                       ssh ubuntu@172.31.15.44 "
                         cd ~/redis-production/terraform &&
-                        terraform apply -auto-approve
+                        terraform apply -auto-approve -var-file=${env.BRANCH_NAME}.tfvars
                       "
                     '''
                 }

@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        TF_VAR_key_name = "redis.0788"
         TF_IN_AUTOMATION = "true"
         TF_INPUT = "0"
     }
@@ -15,50 +14,58 @@ pipeline {
             }
         }
 
-        stage('Terraform Plan') {
-            when { branch 'main' }
+        stage('Select Terraform Workspace') {
             steps {
                 sshagent(credentials: ['bastion-ssh-key']) {
                     sh '''
-                    ssh ubuntu@172.31.15.44 "
-                        export TF_VAR_key_name=redis.0788 &&
-                        export TF_IN_AUTOMATION=true &&
-                        export TF_INPUT=0 &&
+                      if [ "$BRANCH_NAME" = "develop" ]; then
+                        WORKSPACE=dev
+                      else
+                        WORKSPACE=prod
+                      fi
+
+                      ssh ubuntu@172.31.15.44 "
                         cd ~/redis-production/terraform &&
-                        terraform init -input=false &&
-                        terraform plan -input=false
-                    "
+                        terraform workspace select $WORKSPACE
+                      "
                     '''
                 }
             }
         }
 
-        stage('Manual Approval') {
-            when { branch 'main' }
+        stage('Terraform Plan') {
             steps {
-                input(
-                    message: 'Approve Terraform Apply to PRODUCTION?',
-                    ok: 'Apply'
-                )
+                sshagent(credentials: ['bastion-ssh-key']) {
+                    sh '''
+                      ssh ubuntu@172.31.15.44 "
+                        cd ~/redis-production/terraform &&
+                        terraform plan
+                      "
+                    '''
+                }
+            }
+        }
+
+        stage('Manual Approval (PROD only)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: "Approve Terraform Apply to PRODUCTION?", ok: "Apply"
             }
         }
 
         stage('Terraform Apply') {
-            when { branch 'main' }
             steps {
                 sshagent(credentials: ['bastion-ssh-key']) {
                     sh '''
-                    ssh ubuntu@172.31.15.44 "
-                        export TF_VAR_key_name=redis.0788 &&
-                        export TF_IN_AUTOMATION=true &&
-                        export TF_INPUT=0 &&
+                      ssh ubuntu@172.31.15.44 "
                         cd ~/redis-production/terraform &&
                         terraform apply -auto-approve
-                    "
+                      "
                     '''
                 }
             }
         }
     }
 }
-         

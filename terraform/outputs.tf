@@ -9,4 +9,7 @@ output "redis_private_ips" {
     data.aws_instance.redis_3.private_ip
   ]
 }
+output "environment" {
+  value = terraform.workspace
+}
 

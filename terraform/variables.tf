@@ -1,13 +1,17 @@
-variable "key_name" {
-  description = "Existing key pair"
-  type        = string
+variable "ami_id" {}
+variable "subnet_id" {}
+variable "key_name" {}
+variable "environment" {}
+
+variable "redis_count" {
+  default = 3
 }
 
-variable "vpc_id" {
-  default = "vpc-0baf60545710b29d8"
+variable "redis_instance_type" {
+  default = "t3.small"
 }
 
-variable "subnet_id" {
-  default = "subnet-0f82927f687432f0f"
+variable "bastion_instance_type" {
+  default = "t3.micro"
 }
 

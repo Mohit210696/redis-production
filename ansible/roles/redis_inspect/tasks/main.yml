@@ -1,0 +1,19 @@
+- name: Get redis config file path
+  shell: redis-cli CONFIG GET config-file
+  register: redis_config_file
+  changed_when: false
+
+- name: Show redis config file path
+  debug:
+    var: redis_config_file.stdout
+
+- name: Dump runtime redis config
+  shell: redis-cli CONFIG GET '*'
+  register: redis_runtime_config
+  changed_when: false
+
+- name: Save runtime config to file
+  copy:
+    content: "{{ redis_runtime_config.stdout }}"
+    dest: "/tmp/redis_runtime_config.txt"
+

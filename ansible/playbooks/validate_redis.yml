@@ -1,0 +1,6 @@
+
+- hosts: redis
+  become: true
+  roles:
+    - redis_validate
+

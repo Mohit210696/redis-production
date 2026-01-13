@@ -1,0 +1,21 @@
+- name: Ensure redis directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: redis
+    group: redis
+    mode: 0755
+  loop:
+    - /etc/redis
+    - /var/lib/redis
+
+- name: Deploy redis config
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/redis.conf
+    owner: redis
+    group: redis
+    mode: 0644
+
+- import_tasks: systemd.yml
+

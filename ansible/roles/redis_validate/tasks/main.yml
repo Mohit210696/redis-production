@@ -1,0 +1,23 @@
+- name: Check redis process
+  shell: ps aux | grep redis-server | grep -v grep
+  register: redis_process
+  changed_when: false
+
+- name: Show redis process
+  debug:
+    var: redis_process.stdout
+
+- name: Check cluster info
+  shell: redis-cli cluster info
+  register: cluster_info
+  changed_when: false
+
+- name: Fail if cluster not OK
+  fail:
+    msg: "Redis cluster is NOT healthy"
+  when: "'cluster_state:ok' not in cluster_info.stdout"
+
+- name: Show cluster info
+  debug:
+    var: cluster_info.stdout
+

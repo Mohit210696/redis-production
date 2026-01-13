@@ -1,0 +1,12 @@
+- name: Bootstrap Redis Cluster
+  hosts: redis
+  become: yes
+  run_once: true
+  tasks:
+    - name: Create Redis cluster
+      command: >
+        redis-cli --cluster create
+        {{ groups['redis'] | map('extract', hostvars, 'ansible_host') | join(':6379 ') }}:6379
+        --cluster-replicas 0
+        --cluster-yes
+

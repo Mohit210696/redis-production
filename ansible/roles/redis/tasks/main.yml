@@ -28,11 +28,14 @@
   shell: redis-cli cluster info
   register: cluster_info
   changed_when: false
+  when: not ansible_check_mode
 
 - name: Fail if cluster not OK
   fail:
     msg: "Redis cluster is NOT healthy"
-  when: "'cluster_state:ok' not in cluster_info.stdout"
+  when: 
+   - not ansible_check_mode
+   - "'cluster_state:ok' not in cluster_info.stdout"
 
 - name: Show cluster info
   debug:
